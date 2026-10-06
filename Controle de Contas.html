@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Contas">
+  <meta name="theme-color" content="#0f172a">
+  <title>Controle de Contas</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-hover: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.15);
+      --yellow: #eab308;
+      --yellow-bg: rgba(234, 179, 8, 0.15);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.15);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59, 130, 246, 0.15);
+      --border: #334155;
+      --radius: 14px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: 16px;
+      padding-bottom: 40px;
+      line-height: 1.4;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    /* Resumo */
+    .resumo {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .resumo h2 {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .resumo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .resumo-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .resumo-item .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .resumo-item .valor {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .resumo-item.gasto .valor { color: var(--red); }
+    .resumo-item.entrada .valor { color: var(--green); }
+    .resumo-item.saldo .valor { color: var(--blue); }
+    .resumo-item.saldo.negativo .valor { color: var(--red); }
+
+    .resumo-full {
+      grid-column: 1 / -1;
+      margin-top: 4px;
+    }
+
+    /* Abas */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      flex: 1;
+      background: var(--card);
+      border: none;
+      color: var(--text-muted);
+      padding: 12px 8px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--blue);
+      color: white;
+    }
+
+    /* Formulários */
+    .form-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-card h3 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    input, select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 1rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: white;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      width: auto;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      width: auto;
+    }
+
+    /* Lista de contas */
+    .lista {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .conta-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      border-left: 5px solid transparent;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .conta-card.verde { border-left-color: var(--green); background: linear-gradient(90deg, var(--green-bg), var(--card) 30%); }
+    .conta-card.amarelo { border-left-color: var(--yellow); background: linear-gradient(90deg, var(--yellow-bg), var(--card) 30%); }
+    .conta-card.vermelho { border-left-color: var(--red); background: linear-gradient(90deg, var(--red-bg), var(--card) 30%); }
+    .conta-card.pago { opacity: 0.6; border-left-color: var(--text-muted); }
+
+    .conta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .conta-nome {
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .conta-valor {
+      font-weight: 700;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    .conta-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-badge.verde { background: var(--green-bg); color: var(--green); }
+    .status-badge.amarelo { background: var(--yellow-bg); color: var(--yellow); }
+    .status-badge.vermelho { background: var(--red-bg); color: var(--red); }
+    .status-badge.pago { background: rgba(148,163,184,0.2); color: var(--text-muted); }
+
+    .conta-acoes {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-edit {
+      background: transparent;
+      color: var(--blue);
+      border: 1px solid var(--blue);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      width: auto;
+    }
+
+    .status-badge.antecipado { background: var(--green-bg); color: var(--green); }
+    .status-badge.nodia { background: var(--blue-bg); color: var(--blue); }
+    .status-badge.atrasado { background: var(--red-bg); color: var(--red); }
+
+    /* Janela de edição */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+    .modal.show { display: flex; }
+    .modal-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    .modal-box h3 { margin-bottom: 14px; font-size: 1.1rem; }
+    .modal-campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .modal-acoes { display: flex; gap: 8px; margin-top: 6px; }
+    .modal-acoes .btn-danger { width: auto; padding: 14px 18px; }
+
+    /* Seções */
+    .secao {
+      display: none;
+    }
+
+    .secao.active {
+      display: block;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 30px 16px;
+      font-size: 0.95rem;
+    }
+
+    .legenda {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legenda-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .legenda-cor {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .legenda-cor.verde { background: var(--green); }
+    .legenda-cor.amarelo { background: var(--yellow); }
+    .legenda-cor.vermelho { background: var(--red); }
+
+    /* Seletor de mês */
+    .mes-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .mes-nav button {
+      background: var(--card);
+      border: none;
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .mes-nav span {
+      font-weight: 600;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Modal de confirmação simples */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>💰 Controle de Contas</h1>
+  <p class="subtitle">Seu controle pessoal no Safari</p>
+
+  <!-- Navegação de mês -->
+  <div class="mes-nav">
+    <button id="mesAnterior" aria-label="Mês anterior">‹</button>
+    <span id="mesAtual"></span>
+    <button id="mesProximo" aria-label="Próximo mês">›</button>
+  </div>
+
+  <!-- Resumo -->
+  <div class="resumo">
+    <h2>Resumo do mês</h2>
+    <div class="resumo-grid">
+      <div class="resumo-item entrada">
+        <div class="label">Já entrou (até hoje)</div>
+        <div class="valor" id="jaEntrou">R$ 0,00</div>
+      </div>
+      <div class="resumo-item entrada">
+        <div class="label">Ainda vai cair</div>
+        <div class="valor" id="aindaVaiCair">R$ 0,00</div>
+      </div>
+      <div class="resumo-item gasto">
+        <div class="label">Já paguei</div>
+        <div class="valor" id="totalGasto">R$ 0,00</div>
+      </div>
+      <div class="resumo-item gasto">
+        <div class="label">Falta pagar (mês)</div>
+        <div class="valor" id="totalAPagarMes">R$ 0,00</div>
+      </div>
+      <div class="resumo-item gasto">
+        <div class="label">Falta pagar (total)</div>
+        <div class="valor" id="totalAPagarGeral">R$ 0,00</div>
+      </div>
+      <div class="resumo-item entrada">
+        <div class="label">Total de entradas (mês)</div>
+        <div class="valor" id="totalEntrada">R$ 0,00</div>
+      </div>
+      <div class="resumo-item saldo resumo-full" id="saldoAgoraBox">
+        <div class="label">Na conta agora (já entrou − já paguei)</div>
+        <div class="valor" id="saldoAgora">R$ 0,00</div>
+      </div>
+      <div class="resumo-item saldo resumo-full" id="saldoBox">
+        <div class="label">Vai sobrar no mês (entradas − pagas − falta pagar)</div>
+        <div class="valor" id="saldo">R$ 0,00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Abas -->
+  <div class="tabs">
+    <button class="tab active" data-tab="contas">Contas</button>
+    <button class="tab" data-tab="recebimentos">Recebimentos</button>
+    <button class="tab" data-tab="pagas">Pagas</button>
+  </div>
+
+  <!-- SEÇÃO CONTAS -->
+  <div id="secao-contas" class="secao active">
+    <div class="form-card">
+      <h3>➕ Nova conta</h3>
+      <div class="form-row">
+        <label for="nomeConta">Nome da conta</label>
+        <input type="text" id="nomeConta" placeholder="Ex: Aluguel, Bradesco, Luz...">
+      </div>
+      <div class="form-row">
+        <label for="valorConta">Valor (R$)</label>
+        <input type="number" id="valorConta" placeholder="0,00" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <div class="form-row">
+        <label for="vencimentoConta">Data de vencimento</label>
+        <input type="date" id="vencimentoConta">
+      </div>
+      <button class="btn btn-primary" id="btnAddConta">Adicionar conta</button>
+    </div>
+
+    <div class="legenda">
+      <div class="legenda-item"><span class="legenda-cor verde"></span> Em dia</div>
+      <div class="legenda-item"><span class="legenda-cor amarelo"></span> Até 15 dias</div>
+      <div class="legenda-item"><span class="legenda-cor vermelho"></span> Atrasada</div>
+    </div>
+
+    <div class="lista" id="listaContas"></div>
+  </div>
+
+  <!-- SEÇÃO RECEBIMENTOS -->
+  <div id="secao-recebimentos" class="secao">
+    <div class="form-card">
+      <h3>💵 Novo recebimento</h3>
+      <div class="form-row">
+        <label for="descRecebimento">Descrição</label>
+        <input type="text" id="descRecebimento" placeholder="Ex: Salário, Freelance...">
+      </div>
+      <div class="form-row">
+        <label for="valorRecebimento">Valor previsto (R$)</label>
+        <input type="number" id="valorRecebimento" placeholder="0,00" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <div class="form-row">
+        <label for="dataRecebimento">Data prevista</label>
+        <input type="date" id="dataRecebimento">
+      </div>
+      <button class="btn btn-primary" id="btnAddRecebimento">Adicionar recebimento</button>
+    </div>
+
+    <div class="lista" id="listaRecebimentos"></div>
+  </div>
+
+  <!-- SEÇÃO PAGAS -->
+  <div id="secao-pagas" class="secao">
+    <div class="lista" id="listaPagas"></div>
+  </div>
+
+  <div class="footer">
+    Dados salvos apenas no seu iPhone • Funciona offline
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Janela de edição -->
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <h3 id="modalTitulo"></h3>
+      <div id="modalCampos"></div>
+      <div class="modal-acoes">
+        <button class="btn btn-primary" id="modalSalvar">Salvar</button>
+        <button class="btn btn-danger" id="modalCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== DADOS =====================
+    let contas = JSON.parse(localStorage.getItem('contas_v1') || '[]');
+    let recebimentos = JSON.parse(localStorage.getItem('recebimentos_v1') || '[]');
+    let mesVisualizado = new Date(); // mês atual por padrão
+
+    // ===================== UTILITÁRIOS =====================
+    function salvar() {
+      localStorage.setItem('contas_v1', JSON.stringify(contas));
+      localStorage.setItem('recebimentos_v1', JSON.stringify(recebimentos));
+    }
+
+    function formatarMoeda(valor) {
+      return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function formatarData(dataStr) {
+      if (!dataStr) return '';
+      const [y, m, d] = dataStr.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function hojeStr() {
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    }
+
+    function diffDias(dataStr) {
+      const hoje = new Date();
+      hoje.setHours(0,0,0,0);
+      const data = new Date(dataStr + 'T00:00:00');
+      const diff = Math.floor((data - hoje) / (1000 * 60 * 60 * 24));
+      return diff;
+    }
+
+    function statusConta(conta) {
+      if (conta.pago) return 'pago';
+      const dias = diffDias(conta.vencimento);
+      if (dias < 0) return 'vermelho';
+      if (dias <= 15) return 'amarelo';
+      return 'verde';
+    }
+
+    function textoStatus(status, dias) {
+      if (status === 'pago') return 'Paga';
+      if (status === 'vermelho') return `Atrasada ${Math.abs(dias)} dia${Math.abs(dias) > 1 ? 's' : ''}`;
+      if (status === 'amarelo') return `Vence em ${dias} dia${dias > 1 ? 's' : ''}`;
+      return `Em dia (${dias} dias)`;
+    }
+
+    function mostrarToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function gerarId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    }
+
+    // ===================== MÊS =====================
+    function atualizarMesLabel() {
+      const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      document.getElementById('mesAtual').textContent = `${meses[mesVisualizado.getMonth()]} ${mesVisualizado.getFullYear()}`;
+    }
+
+    function mudarMes(delta) {
+      mesVisualizado.setMonth(mesVisualizado.getMonth() + delta);
+      atualizarMesLabel();
+      renderizarTudo();
+    }
+
+    // ===================== RENDER =====================
+    function renderizarResumo() {
+      const ano = mesVisualizado.getFullYear();
+      const mes = mesVisualizado.getMonth();
+
+      // Gastos = contas pagas no mês visualizado
+      const gastos = contas
+        .filter(c => c.pago && c.dataPagamento)
+        .filter(c => {
+          const d = new Date(c.dataPagamento + 'T00:00:00');
+          return d.getFullYear() === ano && d.getMonth() === mes;
+        })
+        .reduce((acc, c) => acc + Number(c.valor), 0);
+
+      // Entradas do mês
+      const entradas = recebimentos
+        .filter(r => {
+          const d = new Date(r.data + 'T00:00:00');
+          return d.getFullYear() === ano && d.getMonth() === mes;
+        })
+        .reduce((acc, r) => acc + Number(r.valor), 0);
+
+      // Contas ainda não pagas com vencimento no mês visualizado
+      const aPagarMes = contas
+        .filter(c => !c.pago)
+        .filter(c => {
+          const d = new Date(c.vencimento + 'T00:00:00');
+          return d.getFullYear() === ano && d.getMonth() === mes;
+        })
+        .reduce((acc, c) => acc + Number(c.valor), 0);
+
+      // Todas as contas ainda não pagas, de qualquer mês
+      const aPagarGeral = contas
+        .filter(c => !c.pago)
+        .reduce((acc, c) => acc + Number(c.valor), 0);
+
+      const saldo = entradas - gastos - aPagarMes;
+
+      // Comparação com o dia de hoje
+      const hoje = hojeStr();
+      const doMes = recebimentos.filter(r => {
+        const d = new Date(r.data + 'T00:00:00');
+        return d.getFullYear() === ano && d.getMonth() === mes;
+      });
+      const jaEntrou = doMes
+        .filter(r => r.data <= hoje)
+        .reduce((acc, r) => acc + Number(r.valor), 0);
+      const aindaVaiCair = doMes
+        .filter(r => r.data > hoje)
+        .reduce((acc, r) => acc + Number(r.valor), 0);
+      const saldoAgora = jaEntrou - gastos;
+
+      document.getElementById('jaEntrou').textContent = formatarMoeda(jaEntrou);
+      document.getElementById('aindaVaiCair').textContent = formatarMoeda(aindaVaiCair);
+      document.getElementById('saldoAgora').textContent = formatarMoeda(saldoAgora);
+      document.getElementById('saldoAgoraBox').classList.toggle('negativo', saldoAgora < 0);
+
+      document.getElementById('totalAPagarMes').textContent = formatarMoeda(aPagarMes);
+      document.getElementById('totalAPagarGeral').textContent = formatarMoeda(aPagarGeral);
+
+      document.getElementById('totalGasto').textContent = formatarMoeda(gastos);
+      document.getElementById('totalEntrada').textContent = formatarMoeda(entradas);
+      document.getElementById('saldo').textContent = formatarMoeda(saldo);
+
+      const box = document.getElementById('saldoBox');
+      box.classList.toggle('negativo', saldo < 0);
+    }
+
+    function renderizarContas() {
+      const container = document.getElementById('listaContas');
+      const ativas = contas.filter(c => !c.pago);
+
+      // Ordenar: vermelhas primeiro, depois amarelas, depois verdes. Dentro, por data
+      ativas.sort((a, b) => {
+        const sa = statusConta(a);
+        const sb = statusConta(b);
+        const ordem = { vermelho: 0, amarelo: 1, verde: 2 };
+        if (ordem[sa] !== ordem[sb]) return ordem[sa] - ordem[sb];
+        return a.vencimento.localeCompare(b.vencimento);
+      });
+
+      if (ativas.length === 0) {
+        container.innerHTML = '<div class="empty">Nenhuma conta pendente 🎉<br>Adicione uma acima.</div>';
+        return;
+      }
+
+      container.innerHTML = ativas.map(c => {
+        const st = statusConta(c);
+        const dias = diffDias(c.vencimento);
+        return `
+          <div class="conta-card ${st}">
+            <div class="conta-header">
+              <div class="conta-nome">${escapeHtml(c.nome)}</div>
+              <div class="conta-valor">${formatarMoeda(Number(c.valor))}</div>
+            </div>
+            <div class="conta-info">
+              <span>Vence: ${formatarData(c.vencimento)}</span>
+              <span class="status-badge ${st}">${textoStatus(st, dias)}</span>
+            </div>
+            <div class="conta-acoes">
+              <button class="btn btn-success" onclick="marcarPaga('${c.id}')">✓ Paguei</button>
+              <button class="btn btn-edit" onclick="editarConta('${c.id}')">Editar</button>
+              <button class="btn btn-danger" onclick="excluirConta('${c.id}')">Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderizarRecebimentos() {
+      const container = document.getElementById('listaRecebimentos');
+      const ano = mesVisualizado.getFullYear();
+      const mes = mesVisualizado.getMonth();
+
+      const doMes = recebimentos
+        .filter(r => {
+          const d = new Date(r.data + 'T00:00:00');
+          return d.getFullYear() === ano && d.getMonth() === mes;
+        })
+        .sort((a, b) => a.data.localeCompare(b.data));
+
+      if (doMes.length === 0) {
+        container.innerHTML = '<div class="empty">Nenhum recebimento neste mês.<br>Adicione um acima.</div>';
+        return;
+      }
+
+      container.innerHTML = doMes.map(r => `
+        <div class="conta-card" style="border-left-color: var(--blue);">
+          <div class="conta-header">
+            <div class="conta-nome">${escapeHtml(r.descricao)}</div>
+            <div class="conta-valor" style="color: var(--green);">${formatarMoeda(Number(r.valor))}</div>
+          </div>
+          <div class="conta-info">
+            <span>${r.data <= hojeStr() ? '✅ Caiu em' : '⏳ Cai em'}: ${formatarData(r.data)}</span>
+            <span style="display:flex; gap:8px;">
+              <button class="btn btn-edit" onclick="editarRecebimento('${r.id}')">Editar</button>
+              <button class="btn btn-danger" onclick="excluirRecebimento('${r.id}')">Excluir</button>
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderizarPagas() {
+      const container = document.getElementById('listaPagas');
+      const ano = mesVisualizado.getFullYear();
+      const mes = mesVisualizado.getMonth();
+
+      const pagas = contas
+        .filter(c => c.pago && c.dataPagamento)
+        .filter(c => {
+          const d = new Date(c.dataPagamento + 'T00:00:00');
+          return d.getFullYear() === ano && d.getMonth() === mes;
+        })
+        .sort((a, b) => b.dataPagamento.localeCompare(a.dataPagamento));
+
+      if (pagas.length === 0) {
+        container.innerHTML = '<div class="empty">Nenhuma conta paga neste mês ainda.</div>';
+        return;
+      }
+
+      container.innerHTML = pagas.map(c => `
+        <div class="conta-card pago">
+          <div class="conta-header">
+            <div class="conta-nome">${escapeHtml(c.nome)}</div>
+            <div class="conta-valor">${formatarMoeda(Number(c.valor))}</div>
+          </div>
+          <div class="conta-info">
+            <span>Venc.: ${formatarData(c.vencimento)} • Paga em: ${formatarData(c.dataPagamento)}</span>
+            <span class="status-badge ${classePagamento(c)}">${textoPagamento(c)}</span>
+          </div>
+          <div class="conta-acoes">
+            <button class="btn btn-edit" onclick="editarConta('${c.id}')">Editar</button>
+            <button class="btn btn-danger" onclick="desfazerPagamento('${c.id}')">Desfazer</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderizarTudo() {
+      renderizarResumo();
+      renderizarContas();
+      renderizarRecebimentos();
+      renderizarPagas();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ===================== PAGAMENTO ANTECIPADO? =====================
+    function diasPagamento(c) {
+      // negativo = pagou antes do vencimento; positivo = pagou depois
+      const v = new Date(c.vencimento + 'T00:00:00');
+      const p = new Date(c.dataPagamento + 'T00:00:00');
+      return Math.round((p - v) / (1000 * 60 * 60 * 24));
+    }
+
+    function classePagamento(c) {
+      const d = diasPagamento(c);
+      if (d < 0) return 'antecipado';
+      if (d === 0) return 'nodia';
+      return 'atrasado';
+    }
+
+    function textoPagamento(c) {
+      const d = diasPagamento(c);
+      if (d < 0) return `Antecipada ${Math.abs(d)} dia${Math.abs(d) > 1 ? 's' : ''}`;
+      if (d === 0) return 'Paga no dia';
+      return `Paga com ${d} dia${d > 1 ? 's' : ''} de atraso`;
+    }
+
+    // ===================== EDIÇÃO =====================
+    let modalSalvarFn = null;
+
+    function abrirEdicao(titulo, campos, aoSalvar) {
+      document.getElementById('modalTitulo').textContent = titulo;
+      document.getElementById('modalCampos').innerHTML = campos.map(c => `
+        <div class="modal-campo">
+          <label for="edit_${c.id}">${c.label}</label>
+          <input id="edit_${c.id}" type="${c.tipo}" ${c.tipo === 'number' ? 'step="0.01" inputmode="decimal"' : ''} value="${escapeHtml(String(c.valor)).replace(/"/g, '&quot;')}">
+        </div>
+      `).join('');
+      modalSalvarFn = () => {
+        const dados = {};
+        campos.forEach(c => { dados[c.id] = document.getElementById('edit_' + c.id).value; });
+        if (aoSalvar(dados) !== false) fecharEdicao();
+      };
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function fecharEdicao() {
+      document.getElementById('modal').classList.remove('show');
+      modalSalvarFn = null;
+    }
+
+    function editarConta(id) {
+      const c = contas.find(x => x.id === id);
+      if (!c) return;
+      const campos = [
+        { id: 'nome', label: 'Nome da conta', tipo: 'text', valor: c.nome },
+        { id: 'valor', label: 'Valor (R$)', tipo: 'number', valor: c.valor },
+        { id: 'vencimento', label: 'Vencimento', tipo: 'date', valor: c.vencimento }
+      ];
+      if (c.pago) {
+        campos.push({ id: 'dataPagamento', label: 'Data em que paguei', tipo: 'date', valor: c.dataPagamento });
+      }
+      abrirEdicao('Editar conta', campos, d => {
+        const valor = parseFloat(d.valor);
+        if (!d.nome.trim() || isNaN(valor) || valor <= 0 || !d.vencimento || (c.pago && !d.dataPagamento)) {
+          alert('Preencha todos os campos corretamente.');
+          return false;
+        }
+        c.nome = d.nome.trim();
+        c.valor = valor;
+        c.vencimento = d.vencimento;
+        if (c.pago) c.dataPagamento = d.dataPagamento;
+        salvar();
+        renderizarTudo();
+        mostrarToast('Conta atualizada!');
+      });
+    }
+
+    function editarRecebimento(id) {
+      const r = recebimentos.find(x => x.id === id);
+      if (!r) return;
+      abrirEdicao('Editar recebimento', [
+        { id: 'descricao', label: 'Descrição', tipo: 'text', valor: r.descricao },
+        { id: 'valor', label: 'Valor (R$)', tipo: 'number', valor: r.valor },
+        { id: 'data', label: 'Data que cai na conta', tipo: 'date', valor: r.data }
+      ], d => {
+        const valor = parseFloat(d.valor);
+        if (!d.descricao.trim() || isNaN(valor) || valor <= 0 || !d.data) {
+          alert('Preencha todos os campos corretamente.');
+          return false;
+        }
+        r.descricao = d.descricao.trim();
+        r.valor = valor;
+        r.data = d.data;
+        salvar();
+        renderizarTudo();
+        mostrarToast('Recebimento atualizado!');
+      });
+    }
+
+    // ===================== AÇÕES =====================
+    function adicionarConta() {
+      const nome = document.getElementById('nomeConta').value.trim();
+      const valor = parseFloat(document.getElementById('valorConta').value);
+      const vencimento = document.getElementById('vencimentoConta').value;
+
+      if (!nome || isNaN(valor) || valor <= 0 || !vencimento) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+
+      contas.push({
+        id: gerarId(),
+        nome,
+        valor,
+        vencimento,
+        pago: false,
+        dataPagamento: null
+      });
+
+      salvar();
+      document.getElementById('nomeConta').value = '';
+      document.getElementById('valorConta').value = '';
+      document.getElementById('vencimentoConta').value = '';
+      renderizarTudo();
+      mostrarToast('Conta adicionada!');
+    }
+
+    function marcarPaga(id) {
+      const conta = contas.find(c => c.id === id);
+      if (!conta) return;
+      conta.pago = true;
+      conta.dataPagamento = hojeStr();
+      salvar();
+      renderizarTudo();
+      mostrarToast('Marcada como paga!');
+    }
+
+    function desfazerPagamento(id) {
+      const conta = contas.find(c => c.id === id);
+      if (!conta) return;
+      conta.pago = false;
+      conta.dataPagamento = null;
+      salvar();
+      renderizarTudo();
+      mostrarToast('Pagamento desfeito');
+    }
+
+    function excluirConta(id) {
+      if (!confirm('Excluir esta conta?')) return;
+      contas = contas.filter(c => c.id !== id);
+      salvar();
+      renderizarTudo();
+      mostrarToast('Conta excluída');
+    }
+
+    function adicionarRecebimento() {
+      const descricao = document.getElementById('descRecebimento').value.trim();
+      const valor = parseFloat(document.getElementById('valorRecebimento').value);
+      const data = document.getElementById('dataRecebimento').value;
+
+      if (!descricao || isNaN(valor) || valor <= 0 || !data) {
+        alert('Preencha todos os campos corretamente.');
+        return;
+      }
+
+      recebimentos.push({
+        id: gerarId(),
+        descricao,
+        valor,
+        data
+      });
+
+      salvar();
+      document.getElementById('descRecebimento').value = '';
+      document.getElementById('valorRecebimento').value = '';
+      document.getElementById('dataRecebimento').value = '';
+      renderizarTudo();
+      mostrarToast('Recebimento adicionado!');
+    }
+
+    function excluirRecebimento(id) {
+      if (!confirm('Excluir este recebimento?')) return;
+      recebimentos = recebimentos.filter(r => r.id !== id);
+      salvar();
+      renderizarTudo();
+      mostrarToast('Recebimento excluído');
+    }
+
+    // ===================== EVENTOS =====================
+    document.getElementById('btnAddConta').addEventListener('click', adicionarConta);
+    document.getElementById('btnAddRecebimento').addEventListener('click', adicionarRecebimento);
+    document.getElementById('mesAnterior').addEventListener('click', () => mudarMes(-1));
+    document.getElementById('mesProximo').addEventListener('click', () => mudarMes(1));
+
+    document.getElementById('modalSalvar').addEventListener('click', () => { if (modalSalvarFn) modalSalvarFn(); });
+    document.getElementById('modalCancelar').addEventListener('click', fecharEdicao);
+    document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') fecharEdicao(); });
+
+    // Abas
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.secao').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('secao-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Inicialização
+    document.getElementById('vencimentoConta').value = hojeStr();
+    document.getElementById('dataRecebimento').value = hojeStr();
+    atualizarMesLabel();
+    renderizarTudo();
+  </script>
+</body>
+</html>
